@@ -1,0 +1,89 @@
+{
+  "name": "@syngenta/mobile-product-check",
+  "version": "1.0.0",
+  "description": "A comprehensive mobile product authentication module for scanning and verifying Syngenta products using 2D matrix codes",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/**/*.{ts,tsx}",
+    "lint:fix": "eslint src/**/*.{ts,tsx} --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,json,md}\"",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "preversion": "npm run lint && npm run test",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
+  },
+  "keywords": [
+    "syngenta",
+    "product-verification",
+    "qr-scanner",
+    "2d-matrix-code",
+    "authentication",
+    "camera",
+    "barcode",
+    "mobile",
+    "react",
+    "angular",
+    "vue"
+  ],
+  "author": "Syngenta",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/syngenta/mobile-product-check.git"
+  },
+  "bugs": {
+    "url": "https://github.com/syngenta/mobile-product-check/issues"
+  },
+  "homepage": "https://github.com/syngenta/mobile-product-check#readme",
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-native": ">=0.64.0",
+    "react-native-vision-camera": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": false
+    },
+    "react-native": {
+      "optional": false
+    },
+    "react-native-vision-camera": {
+      "optional": false
+    }
+  },
+  "dependencies": {
+    "i18next": "^23.7.6",
+    "vision-camera-code-scanner": "^0.2.0"
+  },
+  "devDependencies": {
+    "@react-native/typescript-config": "^0.74.0",
+    "@types/jest": "^29.5.10",
+    "@types/node": "^20.10.4",
+    "@types/react": "^18.2.42",
+    "@types/react-native": "^0.72.8",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "eslint": "^8.55.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.1.0",
+    "react": "^18.2.0",
+    "react-native": "^0.74.0",
+    "react-native-vision-camera": "^3.9.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.3"
+  }
+}

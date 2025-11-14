@@ -1,0 +1,36 @@
+# @syngenta/mobile-product-check
+
+React Native module for Syngenta product authentication and verification.
+
+## Installation
+
+```bash
+npm install @syngenta/mobile-product-check
+```
+
+See full documentation in [README.md](./README.md)
+
+## Quick Start
+
+```tsx
+import { ProductScanner } from '@syngenta/mobile-product-check';
+
+<ProductScanner 
+  config={{
+    apiBaseUrl: 'https://api.syngenta.com',
+    locale: 'en'
+  }} 
+/>
+```
+
+## Features
+
+- 📷 Camera scanning with react-native-vision-camera
+- ✅ Product authentication
+- 🌍 Multi-language support
+- ⚠️ Counterfeit detection
+- 📱 React Native compatible
+
+## License
+
+MIT
