@@ -1,11 +1,13 @@
 # Pull Request
 
 ## Description
+
 Please include a summary of the change and which issue is fixed. Include relevant motivation and context.
 
 Fixes # (issue)
 
 ## Type of Change
+
 Please delete options that are not relevant.
 
 - [ ] Bug fix (non-breaking change which fixes an issue)
@@ -17,17 +19,20 @@ Please delete options that are not relevant.
 - [ ] Test update
 
 ## How Has This Been Tested?
+
 Please describe the tests that you ran to verify your changes.
 
 - [ ] Test A
 - [ ] Test B
 
 ## Test Configuration
+
 - Device: [e.g. iPhone 13, Samsung Galaxy S21]
 - OS: [e.g. iOS 15, Android 12]
 - React Native Version: [e.g. 0.72.0]
 
 ## Checklist
+
 - [ ] My code follows the style guidelines of this project
 - [ ] I have performed a self-review of my own code
 - [ ] I have commented my code, particularly in hard-to-understand areas
@@ -38,7 +43,9 @@ Please describe the tests that you ran to verify your changes.
 - [ ] Any dependent changes have been merged and published
 
 ## Screenshots (if applicable)
+
 Add screenshots to help explain your changes.
 
 ## Additional Notes
+
 Add any other notes about the PR here.

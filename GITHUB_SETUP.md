@@ -9,6 +9,7 @@ The project has been initialized with Git and is ready to be pushed to GitHub.
 ## Step 1: Create GitHub Repository
 
 ### Option A: Using GitHub CLI
+
 ```bash
 # Install GitHub CLI if not already installed
 brew install gh
@@ -49,15 +50,18 @@ git push -u origin main
 ## Step 3: Configure GitHub Settings
 
 ### 3.1 Add Repository Description
+
 1. Go to your repository on GitHub
 2. Click the ⚙️ icon next to "About"
 3. Add description: "React Native module for Syngenta product authentication using QR code scanning"
 4. Add topics: `react-native`, `qr-scanner`, `product-verification`, `syngenta`, `mobile`, `typescript`
 
 ### 3.2 Enable GitHub Actions
+
 GitHub Actions are already configured! They will run automatically on push/PR.
 
 ### 3.3 Add NPM Token (for automatic publishing)
+
 1. Go to Repository → Settings → Secrets and variables → Actions
 2. Click "New repository secret"
 3. Name: `NPM_TOKEN`
@@ -65,6 +69,7 @@ GitHub Actions are already configured! They will run automatically on push/PR.
 5. Click "Add secret"
 
 ### 3.4 Enable Branch Protection (Recommended)
+
 1. Go to Settings → Branches
 2. Add rule for `main` branch:
    - ✅ Require pull request before merging
@@ -89,6 +94,7 @@ After pushing, add these badges to the top of README.md:
 ## Step 5: Create First Release
 
 ### Using GitHub CLI
+
 ```bash
 # Create a tag
 git tag -a v1.0.0 -m "Release version 1.0.0"
@@ -99,6 +105,7 @@ gh release create v1.0.0 --title "v1.0.0 - Initial Release" --notes-file CHANGEL
 ```
 
 ### Using GitHub Web Interface
+
 1. Go to Releases → Draft a new release
 2. Choose tag: `v1.0.0` (create new tag)
 3. Release title: `v1.0.0 - Initial Release`
@@ -119,6 +126,7 @@ To host documentation:
 ## GitHub Features Included
 
 ### ✅ GitHub Actions Workflows
+
 - **CI Pipeline** (`.github/workflows/ci.yml`)
   - Runs on push and PR
   - Tests on Node 16, 18, 20
@@ -132,10 +140,12 @@ To host documentation:
   - Automatic NPM publishing
 
 ### ✅ Issue Templates
+
 - **Bug Report** - Structured bug reporting
 - **Feature Request** - Feature suggestions
 
 ### ✅ Pull Request Template
+
 - Standardized PR descriptions
 - Checklist for contributors
 - Type of change categorization
@@ -162,6 +172,7 @@ mobile-product-check/
 ## Collaboration Features
 
 ### For Contributors
+
 1. Fork the repository
 2. Create feature branch
 3. Make changes
@@ -170,6 +181,7 @@ mobile-product-check/
 6. GitHub Actions will automatically test your PR
 
 ### For Maintainers
+
 1. Review PRs with CI results
 2. Merge when tests pass
 3. Create releases to trigger NPM publish
@@ -220,6 +232,7 @@ gh release create v1.0.1 --generate-notes
 ## Monitoring
 
 ### Watch for:
+
 - Failed CI builds
 - Security alerts
 - Dependency updates
@@ -227,6 +240,7 @@ gh release create v1.0.1 --generate-notes
 - Issue reports
 
 ### GitHub Insights
+
 - View traffic stats
 - Monitor popular content
 - Track clones and views
@@ -245,6 +259,7 @@ gh release create v1.0.1 --generate-notes
 ## Support
 
 If you need help:
+
 - Check [GitHub Docs](https://docs.github.com)
 - Open an issue
 - Contact maintainers
