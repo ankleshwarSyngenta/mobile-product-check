@@ -1,30 +1,34 @@
 {
-  "name": "@syngenta/mobile-product-check",
+  "name": "@syngenta/product-check",
   "version": "1.0.0",
   "description": "A comprehensive mobile product authentication module for scanning and verifying Syngenta products using 2D matrix codes",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "yarn workspaces foreach -Apt run build",
+    "dev": "yarn workspaces foreach -Ap run dev",
     "test": "jest",
-    "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint src/**/*.{ts,tsx}",
-    "lint:fix": "eslint src/**/*.{ts,tsx} --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx,json,md}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,json,md}\"",
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run lint && npm run typecheck && npm run test && npm run build",
-    "preversion": "npm run lint && npm run test",
-    "version": "npm run format && git add -A src",
-    "postversion": "git push && git push --tags"
+    "lint": "yarn workspaces foreach -Apt run lint",
+    "lint:fix": "yarn workspaces foreach -Apt run lint:fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
+    "typecheck": "yarn workspaces foreach -Apt run typecheck",
+    "clean": "yarn workspaces foreach -Ap run clean && rm -rf node_modules",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "publish-packages": "changeset publish",
+    "prepublishOnly": "yarn lint && yarn typecheck && yarn test && yarn build"
   },
   "keywords": [
     "syngenta",
@@ -35,20 +39,18 @@
     "camera",
     "barcode",
     "mobile",
-    "react",
-    "angular",
-    "vue"
+    "react"
   ],
   "author": "Syngenta",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/syngenta/mobile-product-check.git"
+    "url": "https://github.com/syngenta/product-check.git"
   },
   "bugs": {
-    "url": "https://github.com/syngenta/mobile-product-check/issues"
+    "url": "https://github.com/syngenta/product-check/issues"
   },
-  "homepage": "https://github.com/syngenta/mobile-product-check#readme",
+  "homepage": "https://github.com/syngenta/product-check#readme",
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-native": ">=0.64.0",
@@ -84,6 +86,8 @@
     "react-native": "^0.74.0",
     "react-native-vision-camera": "^3.9.0",
     "ts-jest": "^29.1.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "@changesets/cli": "^2.26.2",
+    "tsup": "^8.0.0"
   }
 }

@@ -1,199 +1,161 @@
-# @syngenta/mobile-product-check
+# @syngenta/product-check
 
-[![npm version](https://badge.fury.io/js/%40syngenta%2Fmobile-product-check.svg)](https://www.npmjs.com/package/@syngenta/mobile-product-check)
+[![npm version](https://badge.fury.io/js/%40syngenta%2Fproduct-check.svg)](https://www.npmjs.com/package/@syngenta/product-check)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A comprehensive React Native module for scanning and verifying Syngenta products using QR codes with camera integration.
+A comprehensive, enterprise-grade product authentication SDK for scanning and verifying Syngenta products using 2D matrix codes, QR codes, and barcodes. Built with **Hexagonal Architecture** for maximum flexibility, testability, and maintainability across React Native (mobile) and React Web platforms.
+
+---
 
 ## 📋 Table of Contents
 
 - [Features](#features)
 - [Architecture](#architecture)
 - [Installation](#installation)
-- [Setup Guide](#setup-guide)
-  - [iOS Setup](#ios-setup)
-  - [Android Setup](#android-setup)
 - [Quick Start](#quick-start)
+- [Setup Guide](#setup-guide)
 - [Configuration](#configuration)
 - [Usage Examples](#usage-examples)
-  - [Basic Usage](#basic-usage)
-  - [With Home Screen](#with-home-screen)
-  - [Advanced Usage](#advanced-usage)
-  - [Programmatic Verification](#programmatic-verification)
-- [Verification Scenarios](#verification-scenarios)
+- [Packages](#packages)
 - [API Reference](#api-reference)
-  - [Components](#components)
-  - [Services](#services)
-  - [Utilities](#utilities)
-  - [Types](#types)
-  - [Hooks](#hooks)
+- [Code Types Supported](#code-types-supported)
+- [Verification Scenarios](#verification-scenarios)
+- [Backend API Integration](#backend-api-integration)
 - [Localization](#localization)
+- [Theming](#theming)
 - [Testing](#testing)
-- [Publishing](#publishing)
 - [Troubleshooting](#troubleshooting)
+- [Development](#development)
 - [Contributing](#contributing)
 - [License](#license)
 
 ---
 
-## ✨ Features
+## Features
 
-✅ **Camera Integration** - Uses react-native-vision-camera for efficient QR code scanning  
-✅ **Product Verification** - Securely communicates with Syngenta's backend services  
-✅ **Multi-Language Support** - Built-in i18n support (6 languages)  
-✅ **Counterfeit Detection** - Warns users when products are scanned 10+ times  
-✅ **Error Handling** - Handles all 13 error codes from Standard Scan API  
-✅ **TypeScript** - Fully typed for better developer experience  
-✅ **Customizable** - Flexible configuration and callbacks
+✅ **Multi-Platform Support** - React Native (iOS/Android) and React Web  
+✅ **Camera Integration** - Uses react-native-vision-camera for efficient scanning  
+✅ **Multiple Code Types** - QR, DataMatrix, EAN-13, UPC-A support  
+✅ **Product Verification** - Secure backend communication with Syngenta APIs  
+✅ **Multi-Language Support** - Built-in i18n support (6 languages: EN, ES, PT, FR, DE, ZH)  
+✅ **Counterfeit Detection** - Configurable threshold-based warning system  
+✅ **Error Handling** - Comprehensive handling of 13 backend error codes  
+✅ **TypeScript** - Fully typed for enhanced developer experience  
+✅ **Customizable** - Flexible configuration, callbacks, and theming  
+✅ **Hexagonal Architecture** - Clean separation of concerns using Ports & Adapters  
+✅ **Retry Logic** - Built-in exponential backoff retry mechanism  
+✅ **Analytics Ready** - Pluggable analytics port for custom tracking  
+✅ **Production Ready** - Enterprise-grade with comprehensive test coverage
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
-### Project Structure
+This monorepo follows **Hexagonal Architecture (Ports & Adapters)** for clean code organization, testability, and extensibility.
 
-```
+### Monorepo Structure
+
+```text
 mobile-product-check/
-├── src/
-│   ├── components/
-│   │   └── ProductScanner.tsx         # Main scanner component
-│   ├── services/
-│   │   └── ProductVerificationService.ts  # API integration
-│   ├── utils/
-│   │   └── codeDecoder.ts             # QR code decoder
-│   ├── hooks/
-│   │   └── useLocalization.ts         # i18n hook
-│   ├── types/
-│   │   └── index.ts                   # TypeScript definitions
-│   ├── constants/
-│   │   └── index.ts                   # Constants
-│   └── index.ts                       # Main export
-├── examples/                          # Usage examples
-├── __tests__/                         # Unit tests
-└── package.json
+├── packages/
+│   ├── core-sdk/              # Shared business logic & infrastructure
+│   │   ├── src/
+│   │   │   ├── ports/         # Interface contracts
+│   │   │   ├── infrastructure/ # HTTP client, adapters
+│   │   │   ├── api/           # Backend client
+│   │   │   ├── utils/         # Code decoder
+│   │   │   ├── hooks/         # React hooks
+│   │   │   ├── theme/         # Theming system
+│   │   │   └── verification/  # Error codes
+│   │   └── package.json
+│   ├── react-native/          # React Native scanner
+│   │   └── src/
+│   │       ├── scanner/       # ProductScanner component
+│   │       └── service/       # Verification service
+│   └── react-web/             # React Web scanner
+│       └── src/
+│           ├── scanner/       # ProductScanner component
+│           └── service/       # Verification service
+├── examples/                  # Usage examples
+├── __tests__/                 # Unit tests
+├── doc/                       # Documentation
+└── README.md                  # This file
 ```
 
 ### Component Flow
 
-```
-User Scans QR Code
-        ↓
+```text
+User Scans Code
+      ↓
 ProductScanner (Camera)
-        ↓
-CodeDecoder (Validate)
-        ↓
-ProductVerificationService (API Call)
-        ↓
-Backend Verification
-        ↓
-Display Result (Success/Error/Warning)
+      ↓
+CodeDecoder (Validate & Extract)
+      ↓
+BackendClient → BackendPort → HttpBackendAdapter
+      ↓
+Backend API Verification
+      ↓
+Analytics Tracking (Optional)
+      ↓
+Display Result (Success/Warning/Error)
 ```
+
+### Why Hexagonal Architecture?
+
+- **Testability**: Easy to mock dependencies and write unit tests
+- **Flexibility**: Swap implementations without changing business logic
+- **Maintainability**: Clear boundaries between layers
+- **Scalability**: Add new adapters (e.g., GraphQL) without modifying core
+- **Platform Independence**: Core logic shared across React Native & Web
 
 ---
 
-## 📦 Installation
+## Installation
 
-**Step 1: Install the package**
+This is a monorepo containing three packages. Install only what you need:
+
+### For React Native Apps
 
 ```bash
-npm install @syngenta/mobile-product-check react-native-vision-camera
+npm install @syngenta/product-check-react-native react-native-vision-camera
 # or
-yarn add @syngenta/mobile-product-check react-native-vision-camera
+yarn add @syngenta/product-check-react-native react-native-vision-camera
 ```
 
-**Step 2: Install pods (iOS only)**
+**iOS:** Install pods
 
 ```bash
 cd ios && pod install && cd ..
 ```
 
-That's it! Now proceed to setup.
-
----
-
-## 🔧 Setup Guide
-
-### iOS Setup
-
-**1. Add Camera Permission**
-
-Edit `ios/YourApp/Info.plist`:
-
-```xml
-<key>NSCameraUsageDescription</key>
-<string>This app needs camera access to scan product QR codes</string>
-```
-
-**2. Minimum iOS Version**
-
-Ensure minimum iOS deployment target is 11.0+ in `ios/Podfile`:
-
-```ruby
-platform :ios, '11.0'
-```
-
-**3. Install Pods**
+### For React Web Apps
 
 ```bash
-cd ios
-pod install
-cd ..
+npm install @syngenta/product-check-react-web
+# or
+yarn add @syngenta/product-check-react-web
 ```
 
-### Android Setup
+### Core SDK (for custom integrations)
 
-**1. Add Permissions**
-
-Edit `android/app/src/main/AndroidManifest.xml`:
-
-```xml
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <application>
-        <!-- ... -->
-    </application>
-</manifest>
+```bash
+npm install @syngenta/product-check-core
+# or
+yarn add @syngenta/product-check-core
 ```
 
-**2. Update Minimum SDK**
-
-Edit `android/build.gradle`:
-
-```gradle
-buildscript {
-    ext {
-        minSdkVersion = 21
-        compileSdkVersion = 33
-        targetSdkVersion = 33
-    }
-}
-```
-
-**3. Enable Java 8**
-
-Edit `android/app/build.gradle`:
-
-```gradle
-android {
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-}
-```
+**Note:** The React Native and React Web packages automatically include the core SDK as a dependency.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-**Minimal Example:**
+### React Native - Minimal Example
 
 ```tsx
 import React, { useState } from 'react';
 import { View, Button } from 'react-native';
-import { ProductScanner } from '@syngenta/mobile-product-check';
+import { ProductScanner } from '@syngenta/product-check-react-native';
 
 export default function App() {
   const [showScanner, setShowScanner] = useState(false);
@@ -225,36 +187,173 @@ export default function App() {
 }
 ```
 
-**Run the app:**
+### React Web - Minimal Example
+
+```tsx
+import React, { useState } from 'react';
+import { ProductScanner } from '@syngenta/product-check-react-web';
+
+export default function App() {
+  const [showScanner, setShowScanner] = useState(false);
+
+  return (
+    <div style={{ height: '100vh' }}>
+      {!showScanner ? (
+        <button onClick={() => setShowScanner(true)}>Scan Product</button>
+      ) : (
+        <ProductScanner
+          config={{
+            apiBaseUrl: 'https://api.syngenta.com',
+            apiKey: 'your-api-key',
+            locale: 'en',
+            onSuccess: (data) => {
+              console.log('✅ Product verified:', data);
+              setShowScanner(false);
+            },
+            onError: (error) => {
+              console.error('❌ Error:', error.message);
+              setShowScanner(false);
+            },
+          }}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
+    </div>
+  );
+}
+```
+
+---
+
+## Setup Guide
+
+### iOS Setup (React Native)
+
+#### 1. Add Camera Permission
+
+Edit `ios/YourApp/Info.plist`:
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>This app needs camera access to scan product QR codes</string>
+```
+
+#### 2. Minimum iOS Version
+
+Ensure minimum iOS deployment target is 11.0+ in `ios/Podfile`:
+
+```ruby
+platform :ios, '11.0'
+```
+
+#### 3. Install Pods
 
 ```bash
-# iOS
-npx react-native run-ios
+cd ios
+pod install
+cd ..
+```
 
-# Android
+#### 4. Build and Run
+
+```bash
+npx react-native run-ios
+```
+
+### Android Setup (React Native)
+
+#### 1. Add Permissions
+
+Edit `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application>
+        <!-- ... -->
+    </application>
+</manifest>
+```
+
+#### 2. Update Minimum SDK
+
+Edit `android/build.gradle`:
+
+```gradle
+buildscript {
+    ext {
+        minSdkVersion = 21
+        compileSdkVersion = 33
+        targetSdkVersion = 33
+    }
+}
+```
+
+#### 3. Enable Java 8
+
+Edit `android/app/build.gradle`:
+
+```gradle
+android {
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+```
+
+#### 4. Build and Run
+
+```bash
 npx react-native run-android
 ```
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### ScannerConfig
 
-| Property                     | Type     | Required | Default | Description                                    |
-| ---------------------------- | -------- | -------- | ------- | ---------------------------------------------- |
-| `apiBaseUrl`                 | string   | Yes      | -       | Base URL for Syngenta's backend API            |
-| `apiKey`                     | string   | No       | -       | API key for authentication                     |
-| `locale`                     | string   | No       | 'en'    | Language code (en, es, pt, fr, de, zh)         |
-| `counterfeitThreshold`       | number   | No       | 10      | Number of scans before counterfeit warning     |
-| `counterfeitCheckPeriodDays` | number   | No       | 365     | Period in days for counterfeit check           |
-| `onSuccess`                  | function | No       | -       | Callback when product is verified successfully |
-| `onError`                    | function | No       | -       | Callback when verification fails               |
-| `onCounterfeitWarning`       | function | No       | -       | Callback when counterfeit warning triggers     |
+| Property               | Type     | Required | Default | Description                                    |
+| ---------------------- | -------- | -------- | ------- | ---------------------------------------------- |
+| `apiBaseUrl`           | string   | Yes      | -       | Base URL for Syngenta's backend API            |
+| `apiKey`               | string   | No       | -       | API key for authentication                     |
+| `authToken`            | string   | No       | -       | JWT authentication token                       |
+| `locale`               | string   | No       | 'en'    | Language code (en, es, pt, fr, de, zh)         |
+| `counterfeitThreshold` | number   | No       | 10      | Number of unique retailers before warning      |
+| `timeout`              | number   | No       | 30000   | Request timeout in milliseconds                |
+| `retryAttempts`        | number   | No       | 3       | Number of retry attempts for failed requests   |
+| `onSuccess`            | function | No       | -       | Callback when product is verified successfully |
+| `onError`              | function | No       | -       | Callback when verification fails               |
+| `onCounterfeitWarning` | function | No       | -       | Callback when counterfeit warning triggers     |
+
+### Example Configuration
+
+```tsx
+const config = {
+  apiBaseUrl: 'https://api.syngenta.com',
+  authToken: 'your-jwt-token',
+  locale: 'es',
+  counterfeitThreshold: 15,
+  timeout: 60000,
+  retryAttempts: 5,
+  onSuccess: (data) => {
+    console.log('Product verified:', data);
+  },
+  onError: (error) => {
+    console.error('Verification failed:', error);
+  },
+  onCounterfeitWarning: (data, scanCount) => {
+    console.warn(`Warning: ${scanCount} scans detected`);
+  },
+};
+```
 
 ---
 
-## 📖 Usage Examples
+## Usage Examples
 
 ### Basic Usage
 
@@ -262,40 +361,27 @@ Simplest implementation with just the scanner component:
 
 ```tsx
 import React from 'react';
-import { SafeAreaView, StyleSheet, StatusBar } from 'react-native';
-import { ProductScanner } from '@syngenta/mobile-product-check';
+import { SafeAreaView, StyleSheet } from 'react-native';
+import { ProductScanner } from '@syngenta/product-check-react-native';
 
 function App() {
-  const config = {
-    apiBaseUrl: 'https://api.syngenta.com',
-    apiKey: 'your-api-key-here',
-    locale: 'en',
-    counterfeitThreshold: 10,
-    counterfeitCheckPeriodDays: 365,
-    onSuccess: (data) => {
-      console.log('✅ Product verified successfully:', data);
-    },
-    onError: (error) => {
-      console.error('❌ Verification failed:', error);
-    },
-    onCounterfeitWarning: (data, scanCount) => {
-      console.warn(`⚠️ Potential counterfeit! Product scanned ${scanCount} times`);
-    },
-  };
-
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <ProductScanner config={config} />
+      <ProductScanner
+        config={{
+          apiBaseUrl: 'https://api.syngenta.com',
+          apiKey: 'your-api-key',
+          locale: 'en',
+          onSuccess: (data) => console.log('✅ Verified:', data),
+          onError: (error) => console.error('❌ Error:', error),
+        }}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-  },
+  container: { flex: 1, backgroundColor: '#ffffff' },
 });
 
 export default App;
@@ -307,38 +393,46 @@ Toggle between a home screen and the scanner:
 
 ```tsx
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
-import { ProductScanner } from '@syngenta/mobile-product-check';
+import { SafeAreaView, View, Text, TouchableOpacity, Alert } from 'react-native';
+import { ProductScanner } from '@syngenta/product-check-react-native';
 
 function App() {
   const [showScanner, setShowScanner] = useState(false);
 
   const config = {
     apiBaseUrl: 'https://api.syngenta.com',
-    apiKey: 'your-api-key-here',
+    apiKey: 'your-api-key',
     locale: 'en',
     onSuccess: (data) => {
       setShowScanner(false);
       Alert.alert(
         '✅ Product Verified',
-        `Product: ${data.productName}\nSerial: ${data.serialNumber}`,
-        [{ text: 'OK' }]
+        `Product: ${data.productName}\nSerial: ${data.serialNumber}`
       );
     },
     onError: (error) => {
       setShowScanner(false);
-      Alert.alert('❌ Verification Failed', error.message, [{ text: 'OK' }]);
+      Alert.alert('❌ Verification Failed', error.message);
     },
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={{ flex: 1 }}>
       {!showScanner ? (
-        <View style={styles.homeContainer}>
-          <Text style={styles.title}>Syngenta Product Check</Text>
-          <Text style={styles.subtitle}>Verify product authenticity by scanning the QR code</Text>
-          <TouchableOpacity style={styles.scanButton} onPress={() => setShowScanner(true)}>
-            <Text style={styles.scanButtonText}>📷 Scan Product</Text>
+        <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
+          <Text style={{ fontSize: 28, fontWeight: 'bold', textAlign: 'center' }}>
+            Syngenta Product Check
+          </Text>
+          <Text style={{ fontSize: 16, color: '#7f8c8d', textAlign: 'center', marginVertical: 20 }}>
+            Verify product authenticity by scanning the QR code
+          </Text>
+          <TouchableOpacity
+            style={{ backgroundColor: '#007bff', borderRadius: 12, padding: 20 }}
+            onPress={() => setShowScanner(true)}
+          >
+            <Text style={{ color: '#ffffff', fontSize: 20, textAlign: 'center' }}>
+              📷 Scan Product
+            </Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -347,15 +441,6 @@ function App() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  homeContainer: { flex: 1, padding: 20, justifyContent: 'center' },
-  title: { fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginBottom: 12 },
-  subtitle: { fontSize: 16, color: '#7f8c8d', textAlign: 'center', marginBottom: 40 },
-  scanButton: { backgroundColor: '#007bff', borderRadius: 12, padding: 20, alignItems: 'center' },
-  scanButtonText: { color: '#ffffff', fontSize: 20, fontWeight: '600' },
-});
 
 export default App;
 ```
@@ -367,7 +452,7 @@ With language selector and scan history:
 ```tsx
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, FlatList } from 'react-native';
-import { ProductScanner, ProductDetails } from '@syngenta/mobile-product-check';
+import { ProductScanner, ProductDetails } from '@syngenta/product-check-react-native';
 
 interface ScanHistoryItem extends ProductDetails {
   timestamp: Date;
@@ -383,11 +468,14 @@ function App() {
     { code: 'en', label: 'English' },
     { code: 'es', label: 'Español' },
     { code: 'pt', label: 'Português' },
+    { code: 'fr', label: 'Français' },
+    { code: 'de', label: 'Deutsch' },
+    { code: 'zh', label: '中文' },
   ];
 
   const config = {
     apiBaseUrl: 'https://api.syngenta.com',
-    apiKey: 'your-api-key-here',
+    apiKey: 'your-api-key',
     locale: selectedLanguage,
     onSuccess: (data) => {
       const historyItem: ScanHistoryItem = {
@@ -411,14 +499,15 @@ function App() {
           <Text style={{ fontSize: 28, fontWeight: 'bold' }}>Product Verification</Text>
 
           {/* Language Selector */}
-          <View style={{ marginTop: 20 }}>
+          <View style={{ marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {languages.map((lang) => (
               <TouchableOpacity
                 key={lang.code}
                 onPress={() => setSelectedLanguage(lang.code)}
                 style={{
                   padding: 10,
-                  backgroundColor: selectedLanguage === lang.code ? '#007bff' : '#fff',
+                  backgroundColor: selectedLanguage === lang.code ? '#007bff' : '#e0e0e0',
+                  borderRadius: 8,
                 }}
               >
                 <Text style={{ color: selectedLanguage === lang.code ? '#fff' : '#000' }}>
@@ -429,21 +518,28 @@ function App() {
           </View>
 
           <TouchableOpacity
-            style={{ backgroundColor: '#007bff', padding: 18, marginTop: 20 }}
+            style={{ backgroundColor: '#007bff', padding: 18, marginTop: 20, borderRadius: 8 }}
             onPress={() => setShowScanner(true)}
           >
-            <Text style={{ color: '#fff', textAlign: 'center' }}>Scan New Product</Text>
+            <Text style={{ color: '#fff', textAlign: 'center', fontSize: 18 }}>
+              Scan New Product
+            </Text>
           </TouchableOpacity>
 
           {/* Scan History */}
+          <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 30 }}>Scan History</Text>
           <FlatList
             data={scanHistory}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <View style={{ padding: 16, backgroundColor: '#fff', marginTop: 12 }}>
-                <Text>{item.productName}</Text>
+              <View
+                style={{ padding: 16, backgroundColor: '#fff', marginTop: 12, borderRadius: 8 }}
+              >
+                <Text style={{ fontWeight: 'bold' }}>{item.productName}</Text>
                 <Text>Serial: {item.serialNumber}</Text>
-                <Text>{item.timestamp.toLocaleString()}</Text>
+                <Text style={{ color: '#7f8c8d', fontSize: 12 }}>
+                  {item.timestamp.toLocaleString()}
+                </Text>
               </View>
             )}
           />
@@ -470,7 +566,7 @@ import {
   CodeDecoder,
   ProductDetails,
   VerificationStatus,
-} from '@syngenta/mobile-product-check';
+} from '@syngenta/product-check-core';
 
 function ProgrammaticExample() {
   const [isVerifying, setIsVerifying] = useState(false);
@@ -479,7 +575,7 @@ function ProgrammaticExample() {
 
   const service = new ProductVerificationService({
     apiBaseUrl: 'https://api.syngenta.com',
-    apiKey: 'your-api-key-here',
+    apiKey: 'your-api-key',
   });
 
   const verifyProductByCode = async (qrCodeText: string) => {
@@ -518,7 +614,7 @@ function ProgrammaticExample() {
   return (
     <View style={{ flex: 1, padding: 20 }}>
       <TouchableOpacity
-        style={{ backgroundColor: '#007bff', padding: 16 }}
+        style={{ backgroundColor: '#007bff', padding: 16, borderRadius: 8 }}
         onPress={() => verifyProductByCode('https://attx.syngenta.com/product?id=TEST123')}
         disabled={isVerifying}
       >
@@ -527,19 +623,19 @@ function ProgrammaticExample() {
         </Text>
       </TouchableOpacity>
 
-      {isVerifying && <ActivityIndicator size="large" color="#007bff" />}
+      {isVerifying && <ActivityIndicator size="large" color="#007bff" style={{ marginTop: 20 }} />}
 
       {result && (
-        <View style={{ marginTop: 20, padding: 16, backgroundColor: '#d4edda' }}>
-          <Text>✅ Verified Product</Text>
+        <View style={{ marginTop: 20, padding: 16, backgroundColor: '#d4edda', borderRadius: 8 }}>
+          <Text style={{ fontWeight: 'bold' }}>✅ Verified Product</Text>
           <Text>Name: {result.productName}</Text>
           <Text>Serial: {result.serialNumber}</Text>
         </View>
       )}
 
       {error && (
-        <View style={{ marginTop: 20, padding: 16, backgroundColor: '#f8d7da' }}>
-          <Text>❌ {error}</Text>
+        <View style={{ marginTop: 20, padding: 16, backgroundColor: '#f8d7da', borderRadius: 8 }}>
+          <Text style={{ fontWeight: 'bold' }}>❌ {error}</Text>
         </View>
       )}
     </View>
@@ -551,7 +647,252 @@ export default ProgrammaticExample;
 
 ---
 
-## 🎯 Verification Scenarios
+## Packages
+
+### @syngenta/product-check-core
+
+The core SDK containing shared business logic, ports, and infrastructure.
+
+**Key Exports:**
+
+- `BackendClient` - HTTP client for API communication
+- `useProductVerification` - React hook for verification
+- `CodeDecoder` - Multi-format code decoder
+- `ThemeProvider` - Theming system
+- Ports: `BackendPort`, `AnalyticsPort`, `LocalizationPort`, `LoggerPort`
+
+**Installation:**
+
+```bash
+npm install @syngenta/product-check-core
+```
+
+### @syngenta/product-check-react-native
+
+React Native scanner component with camera integration.
+
+**Key Exports:**
+
+- `ProductScanner` - Camera-based scanner component
+- `ProductVerificationService` - Service layer
+- `useVerificationService` - Custom hook
+
+**Installation:**
+
+```bash
+npm install @syngenta/product-check-react-native react-native-vision-camera
+```
+
+### @syngenta/product-check-react-web
+
+React Web scanner component with web camera support.
+
+**Key Exports:**
+
+- `ProductScanner` - Web camera-based scanner component
+- `ProductVerificationService` - Service layer
+- `useVerificationService` - Custom hook
+
+**Installation:**
+
+```bash
+npm install @syngenta/product-check-react-web
+```
+
+---
+
+## API Reference
+
+### Components
+
+#### ProductScanner
+
+Main component for scanning and verifying products.
+
+```tsx
+import { ProductScanner } from '@syngenta/product-check-react-native';
+
+<ProductScanner config={scannerConfig} onClose={() => {}} />;
+```
+
+**Props:**
+
+- `config: ScannerConfig` - Configuration object (required)
+- `onClose?: () => void` - Callback when scanner is closed (optional)
+
+### Services
+
+#### ProductVerificationService
+
+Service for programmatic product verification.
+
+```tsx
+import { ProductVerificationService } from '@syngenta/product-check-core';
+
+const service = new ProductVerificationService({
+  apiBaseUrl: 'https://api.syngenta.com',
+  apiKey: 'your-api-key',
+});
+
+const result = await service.verifyProduct(scannedCode);
+```
+
+**Methods:**
+
+- `verifyProduct(code: string): Promise<VerificationResponse>`
+- `getScanCount(trackingId: string): Promise<number>`
+
+### Utilities
+
+#### CodeDecoder
+
+Utility for decoding and validating various code formats.
+
+```tsx
+import { CodeDecoder } from '@syngenta/product-check-core';
+
+const decoded = CodeDecoder.decode(codeText);
+const validation = CodeDecoder.validateCode(codeText);
+```
+
+**Methods:**
+
+- `decode(codeText: string): DecodedResult` - Decode and extract data from code
+- `validateCode(code: string): { isValid: boolean; error?: string }` - Validate code format
+- `isSyngentaCode(code: string): boolean` - Check if code is from Syngenta
+- `extractTrackingId(code: string): string | undefined` - Extract tracking ID
+
+### Hooks
+
+#### useProductVerification
+
+React hook for product verification with built-in analytics.
+
+```tsx
+import { useProductVerification } from '@syngenta/product-check-core';
+
+const { verifyCode, isLoading, error } = useProductVerification({
+  client: backendClient,
+  counterfeitThreshold: 10,
+  localization: localizationPort,
+  analytics: analyticsPort,
+});
+
+const result = await verifyCode(code, 'QR');
+```
+
+### TypeScript Types
+
+```tsx
+import type {
+  ProductDetails,
+  VerificationStatus,
+  VerificationResponse,
+  ScannerConfig,
+  ErrorCode,
+  DecodedResult,
+  CodeType,
+} from '@syngenta/product-check-core';
+```
+
+**Key Types:**
+
+```typescript
+interface ProductDetails {
+  productName?: string;
+  serialNumber?: string;
+  producedDate?: string;
+  expiryDate?: string;
+  batchNumber?: string;
+  rawMaterialBatchNumber?: string;
+  manufacturer?: string;
+  marketedBy?: string;
+  trackingId?: string;
+}
+
+interface VerificationResponse {
+  status: VerificationStatus;
+  data?: ProductDetails;
+  error?: { code: ErrorCode; message: string };
+  scanCount?: number;
+  isCounterfeitWarning?: boolean;
+}
+
+enum VerificationStatus {
+  SUCCESS = 'success',
+  ERROR = 'error',
+  WARNING = 'warning',
+}
+
+type CodeType = 'QR' | 'DataMatrix' | 'EAN' | 'UPC';
+```
+
+---
+
+## Code Types Supported
+
+The SDK automatically detects and decodes multiple code formats:
+
+### QR Codes
+
+- **Syngenta Custom Format**: `https://attx.syngenta.com/product?id=TRACKING-ID`
+- **Generic QR**: Any text-based QR code
+
+**Example:**
+
+```typescript
+const decoded = CodeDecoder.decode('https://attx.syngenta.com/product?id=ABC123');
+// { isValid: true, trackingId: 'ABC123', codeType: 'QR' }
+```
+
+### DataMatrix (GS1 Format)
+
+Decodes GS1 DataMatrix codes with Application Identifiers (AI):
+
+- `(01)` GTIN
+- `(21)` Serial Number
+- `(10)` Batch/Lot Number
+- `(17)` Expiry Date (YYMMDD)
+
+**Example:**
+
+```typescript
+const decoded = CodeDecoder.decode('(01)12345678901234(21)SN-123(10)BATCH-001(17)251231');
+// {
+//   isValid: true,
+//   gtin: '12345678901234',
+//   serialNumber: 'SN-123',
+//   batchNumber: 'BATCH-001',
+//   expiryDate: '2025-12-31',
+//   codeType: 'DataMatrix'
+// }
+```
+
+### EAN-13
+
+13-digit barcode with checksum validation.
+
+**Example:**
+
+```typescript
+const decoded = CodeDecoder.decode('1234567890128');
+// { isValid: true, ean: '1234567890128', codeType: 'EAN' }
+```
+
+### UPC-A
+
+12-digit barcode automatically converted to GTIN-13.
+
+**Example:**
+
+```typescript
+const decoded = CodeDecoder.decode('012345678905');
+// { isValid: true, upc: '012345678905', gtin: '0012345678905', codeType: 'UPC' }
+```
+
+---
+
+## Verification Scenarios
 
 ### Scenario 1: Successful Verification ✅
 
@@ -599,7 +940,7 @@ When an invalid or non-Syngenta QR code is scanned:
 
 ### Scenario 3: Counterfeit Warning ⚠️
 
-When a product has been scanned 10+ times by unique users within 1 year:
+When a product has been scanned by 10+ unique retailers within 1 year:
 
 - **Display**: Success screen with product details
 - **Warning Banner**: ⚠️ Yellow warning at top
@@ -608,131 +949,78 @@ When a product has been scanned 10+ times by unique users within 1 year:
 
 ---
 
-## 📚 API Reference
+## Backend API Integration
 
-### Components
+Your backend should implement the following API contract. For complete specifications, see [doc/API_CONTRACT.md](doc/API_CONTRACT.md).
 
-#### ProductScanner
+### Endpoint: POST /api/verify
 
-Main component for scanning and verifying products.
+**Request:**
 
-```tsx
-<ProductScanner config={scannerConfig} onClose={() => {}} />
+```json
+{
+  "code": "SYN-TRACKING-ID-123",
+  "codeType": "QR",
+  "retailerId": "optional-retailer-id"
+}
 ```
 
-**Props:**
+**Success Response (200 OK):**
 
-- `config: ScannerConfig` - Configuration object (required)
-- `onClose?: () => void` - Callback when scanner is closed (optional)
-
-### Services
-
-#### ProductVerificationService
-
-Service for programmatic product verification.
-
-```tsx
-import { ProductVerificationService } from '@syngenta/mobile-product-check';
-
-const service = new ProductVerificationService(config);
-const result = await service.verifyProduct(scannedCode);
+```json
+{
+  "status": "success",
+  "message": "This product is authentic and registered with Syngenta.",
+  "product": {
+    "name": "Product Name",
+    "manufacturer": "Syngenta",
+    "marketedBy": "Syngenta",
+    "manufacturedOn": "2025-01-15",
+    "expiryDate": "2026-01-15",
+    "batchNumber": "BATCH-123",
+    "serialNumber": "SN-555-XYZ",
+    "rawMaterialBatchNumber": "RAW-888",
+    "trackingId": "TRACKING-ID-123"
+  },
+  "scanCountLastYear": 5,
+  "uniqueRetailersLastYear": 3
+}
 ```
 
-**Methods:**
+**Error Response (400/404):**
 
-- `verifyProduct(scannedCode: string): Promise<VerificationResponse>`
-- `recordScan(trackingId: string, userId?: string): Promise<void>`
-- `getScanCount(trackingId: string): Promise<number>`
-
-### Utilities
-
-#### CodeDecoder
-
-Utility for decoding and validating QR codes.
-
-```tsx
-import { CodeDecoder } from '@syngenta/mobile-product-check';
-
-const decoded = CodeDecoder.decode(codeText);
-const validation = CodeDecoder.validateCode(codeText);
+```json
+{
+  "status": "error",
+  "message": "Invalid Tracking ID.",
+  "errorCode": 6
+}
 ```
 
-**Methods:**
+**Warning Response (Counterfeit Suspected):**
 
-- `decode(codeText: string): DecodedResult`
-- `validateCode(code: string): { isValid: boolean; error?: string }`
-- `isSyngentaCode(code: string): boolean`
-- `extractTrackingId(code: string): string | undefined`
-
-### Hooks
-
-#### useLocalization
-
-Hook for managing localization.
-
-```tsx
-import { useLocalization } from '@syngenta/mobile-product-check';
-
-const { t, currentLocale, changeLanguage } = useLocalization('en');
+```json
+{
+  "status": "warning",
+  "message": "Potential counterfeit detected. Please escalate.",
+  "scanCountLastYear": 50,
+  "uniqueRetailersLastYear": 15,
+  "errorCode": 1
+}
 ```
 
-## Verification Scenarios
+### Client Features
 
-### Scenario 1: Successful Verification
+- **Exponential Backoff Retry**: Automatic retry with increasing delays
+- **Timeout Management**: Configurable request timeouts (default: 30s)
+- **JWT Authentication**: Bearer token support
+- **Error Handling**: Automatic parsing of error codes 0-12
 
-When a valid Syngenta product is scanned, the user sees:
+---
 
-- ✅ Check mark
-- Message: "This product is authentic and registered with Syngenta."
-- Product details:
-  - Product Name
-  - Serial Number
-  - Produced Date
-  - Expiry Date
-  - Batch Number
-  - Raw Material Batch Number
-  - Manufacturer (if available)
-  - Marketed By (if available)
+## Localization
 
-Fields with no data are displayed as "NA".
-
-### Scenario 2: Non-Syngenta Product
-
-When an invalid product or non-Syngenta QR code is scanned:
-
-- ❌ Error icon
-- Message: "Non Syngenta product"
-- Error details based on error code (0-12)
-
-**Error Codes:**
-
-| Code | Message                                        |
-| ---- | ---------------------------------------------- |
-| 0    | Tracking id is not available.                  |
-| 1    | Code scanned multiple times. Contact Syngenta. |
-| 2    | Tracking id is not available.                  |
-| 3    | Tracking ID is not active.                     |
-| 4    | Invalid mandatory input values.                |
-| 5    | Missing mandatory input values.                |
-| 6    | Invalid Tracking ID.                           |
-| 7    | Tracking ID is blacklisted.                    |
-| 8    | Authentication for code has failed.            |
-| 9    | ID is a Turkey product with valid format.      |
-| 10   | GTIN does not exist.                           |
-| 11   | SN does not exist.                             |
-| 12   | Tracking ID is stolen.                         |
-
-### Scenario 3: Counterfeit Warning
-
-When a product has been scanned by 10+ unique users within 1 year:
-
-- ⚠️ Warning banner
-- Success screen with product details
-- Warning message: "This product has been scanned multiple times. Please verify with Syngenta if you have concerns about authenticity."
-
-## 🌍 Localization
-
-The module supports 6 languages out of the box:
+The SDK supports 6 languages out of the box:
 
 - **English** (en)
 - **Spanish** (es)
@@ -751,9 +1039,7 @@ const config = {
 };
 ```
 
-### Available Translations
-
-The following keys are translated:
+### Available Translation Keys
 
 - `scanPrompt` - "Point camera at product QR code to scan"
 - `scanSuccess` - "Scan successful"
@@ -767,7 +1053,7 @@ The following keys are translated:
 ### Adding Custom Translations
 
 ```tsx
-import i18n from '@syngenta/mobile-product-check';
+import i18n from '@syngenta/product-check-core';
 
 i18n.addResourceBundle('it', 'translation', {
   scanPrompt: 'Puntare la fotocamera sul codice QR del prodotto per scansionare',
@@ -777,26 +1063,77 @@ i18n.addResourceBundle('it', 'translation', {
 });
 ```
 
-### TypeScript Support
+---
 
-The module is fully written in TypeScript with complete type definitions:
+## Theming
+
+The SDK includes a customizable theming system.
+
+### Default Theme
 
 ```tsx
-import type {
-  ProductDetails,
-  VerificationStatus,
-  VerificationResponse,
-  ScannerConfig,
-  ErrorCode,
-  DecodedResult,
-} from '@syngenta/mobile-product-check';
+const defaultTheme = {
+  colors: {
+    background: '#ffffff',
+    text: '#000000',
+    success: '#28a745',
+    error: '#dc3545',
+    warning: '#ffc107',
+    accent: '#007bff',
+  },
+  icons: {
+    success: '✓',
+    error: '✗',
+    warning: '⚠',
+  },
+  messages: {
+    success: 'Product verified successfully',
+    error: 'Verification failed',
+    warning: 'Potential counterfeit',
+  },
+};
+```
+
+### Custom Theme
+
+```tsx
+import { ThemeProvider } from '@syngenta/product-check-core';
+
+const customTheme = {
+  colors: {
+    background: '#f5f5f5',
+    text: '#333333',
+    success: '#00ff00',
+    error: '#ff0000',
+    warning: '#ffaa00',
+    accent: '#0066cc',
+  },
+  icons: {
+    success: '✅',
+    error: '❌',
+    warning: '⚠️',
+  },
+  messages: {
+    success: 'Producto verificado',
+    error: 'Error de verificación',
+    warning: 'Posible falsificación',
+  },
+};
+
+function App() {
+  return (
+    <ThemeProvider theme={customTheme}>
+      <ProductScanner config={config} />
+    </ThemeProvider>
+  );
+}
 ```
 
 ---
 
-## 🧪 Testing
+## Testing
 
-The module includes comprehensive unit tests using Jest.
+The SDK includes comprehensive unit tests using Jest.
 
 ### Running Tests
 
@@ -813,9 +1150,9 @@ npm run test:watch
 
 ### Test Structure
 
-```
+```text
 __tests__/
-└── codeDecoder.test.ts    # Tests for QR code decoder
+└── codeDecoder.test.ts    # Tests for code decoder
 ```
 
 ### Writing Tests
@@ -823,7 +1160,7 @@ __tests__/
 Example test for the CodeDecoder:
 
 ```tsx
-import { CodeDecoder } from '@syngenta/mobile-product-check';
+import { CodeDecoder } from '@syngenta/product-check-core';
 
 describe('CodeDecoder', () => {
   it('should decode valid Syngenta URL', () => {
@@ -839,188 +1176,9 @@ describe('CodeDecoder', () => {
 });
 ```
 
-### Test Coverage
-
-The module maintains high test coverage for:
-
-- ✅ Code decoding and validation
-- ✅ QR code pattern matching
-- ✅ Tracking ID extraction
-- ✅ Error handling
-
 ---
 
-## 📦 Publishing
-
-### Publishing to NPM
-
-**Prerequisites:**
-
-- NPM account with access to `@syngenta` organization
-- Proper versioning in `package.json`
-- All tests passing
-
-**Steps:**
-
-1. **Update version:**
-
-   ```bash
-   npm version patch  # or minor, major
-   ```
-
-2. **Build the package:**
-
-   ```bash
-   npm run build
-   ```
-
-3. **Login to NPM:**
-
-   ```bash
-   npm login
-   ```
-
-4. **Publish:**
-   ```bash
-   npm publish --access public
-   ```
-
-### GitHub Release Process
-
-The module uses GitHub Actions for automated publishing:
-
-1. **Create a tag:**
-
-   ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
-   ```
-
-2. **GitHub Actions will:**
-   - Run tests
-   - Build the package
-   - Publish to NPM (if tests pass)
-   - Create a GitHub release
-
-### Version Strategy
-
-Follow semantic versioning (SemVer):
-
-- **Major** (1.0.0 → 2.0.0): Breaking changes
-- **Minor** (1.0.0 → 1.1.0): New features (backward compatible)
-- **Patch** (1.0.0 → 1.0.1): Bug fixes
-
----
-
----
-
-## 🔌 Backend API Requirements
-
-Your backend should implement the Standard Scan API with the following specifications:
-
-### Endpoint: POST /scan
-
-**Request Body:**
-
-```json
-{
-  "trackingId": "string",
-  "url": "string",
-  "timestamp": "ISO8601 date-time",
-  "locale": "string"
-}
-```
-
-**Success Response (200):**
-
-```json
-{
-  "product": {
-    "productName": "Product Name",
-    "serialNumber": "SN123456",
-    "producedDate": "2024-01-15",
-    "expiryDate": "2026-01-15",
-    "batchNumber": "BATCH001",
-    "rawMaterialBatchNumber": "RAW001",
-    "manufacturer": "Factory Name",
-    "marketedBy": "Syngenta"
-  }
-}
-```
-
-**Error Response (400/404/500):**
-
-```json
-{
-  "errorCode": 6,
-  "message": "Invalid Tracking ID",
-  "details": "The provided tracking ID does not match our records"
-}
-```
-
-**Error Codes (0-12):**
-
-| Code | Meaning                               |
-| ---- | ------------------------------------- |
-| 0    | Tracking ID not available             |
-| 1    | Code scanned multiple times           |
-| 2    | Tracking ID not available (duplicate) |
-| 3    | Tracking ID not active                |
-| 4    | Invalid mandatory input values        |
-| 5    | Missing mandatory input values        |
-| 6    | Invalid Tracking ID                   |
-| 7    | Tracking ID blacklisted               |
-| 8    | Authentication failed                 |
-| 9    | Turkey product (valid format)         |
-| 10   | GTIN does not exist                   |
-| 11   | SN does not exist                     |
-| 12   | Tracking ID stolen                    |
-
-### Endpoint: POST /record-scan (Optional)
-
-For counterfeit detection tracking:
-
-**Request:**
-
-```json
-{
-  "trackingId": "string",
-  "userId": "string",
-  "timestamp": "ISO8601 date-time"
-}
-```
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "scanCount": 15
-}
-```
-
-### Endpoint: GET /scan-count/:trackingId (Optional)
-
-Retrieve scan count for counterfeit detection:
-
-**Response:**
-
-```json
-{
-  "trackingId": "ABC123",
-  "scanCount": 15,
-  "uniqueUsers": 12,
-  "lastScanned": "2024-03-15T10:30:00Z"
-}
-```
-
----
-
-## 🛠️ Troubleshooting
-
----
-
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 ### Camera Permission Issues
 
@@ -1043,14 +1201,16 @@ Retrieve scan count for counterfeit detection:
 **Common Issues:**
 
 - **Poor Lighting**: Ensure adequate lighting for the camera
-- **Distance**: Hold device 6-12 inches (15-30 cm) from QR code
+- **Distance**: Hold device 6-12 inches (15-30 cm) from code
 - **Focus**: Keep device steady and wait for autofocus
-- **Code Quality**: Ensure QR code is not damaged or distorted
-- **Non-Syngenta Code**: Module only recognizes Syngenta QR codes
+- **Code Quality**: Ensure code is not damaged or distorted
+- **Non-Syngenta Code**: SDK only recognizes supported code types
 
 **Debugging:**
 
 ```tsx
+import { CodeDecoder } from '@syngenta/product-check-core';
+
 const decoded = CodeDecoder.decode(scannedText);
 console.log('Decoded result:', decoded);
 console.log('Is Syngenta code:', CodeDecoder.isSyngentaCode(scannedText));
@@ -1104,23 +1264,18 @@ npx react-native start --reset-cache
 
 - Check `apiBaseUrl` is correct
 - Verify device has internet connection
-- Check API endpoint is reachable: `curl https://api.syngenta.com/scan`
-- Review API key authentication if required
-
-**CORS Errors (Web):**
-
-- This module is for React Native (mobile), not React (web)
-- Use `@syngenta/web-product-check` for web applications
+- Check API endpoint is reachable: `curl https://api.syngenta.com/api/verify`
+- Review API key/token authentication
 
 **Timeout Errors:**
 
 ```tsx
-// Implement custom timeout logic
-const timeout = new Promise((_, reject) =>
-  setTimeout(() => reject(new Error('Request timeout')), 10000)
-);
-
-const verification = await Promise.race([service.verifyProduct(code), timeout]);
+const config = {
+  apiBaseUrl: 'https://api.syngenta.com',
+  timeout: 60000, // Increase timeout to 60 seconds
+  retryAttempts: 5, // Increase retry attempts
+  // ...
+};
 ```
 
 ### TypeScript Errors
@@ -1129,46 +1284,110 @@ const verification = await Promise.race([service.verifyProduct(code), timeout]);
 
 ```bash
 # Reinstall with TypeScript types
-npm install @syngenta/mobile-product-check --save
+npm install @syngenta/product-check-core --save
 ```
 
 **Type Import Errors:**
 
 ```tsx
 // Use `import type` for type-only imports
-import type { ProductDetails, ScannerConfig } from '@syngenta/mobile-product-check';
+import type { ProductDetails, ScannerConfig } from '@syngenta/product-check-core';
 
 // Or import normally
-import { ProductDetails, ScannerConfig } from '@syngenta/mobile-product-check';
+import { ProductDetails, ScannerConfig } from '@syngenta/product-check-core';
 ```
-
-### Performance Issues
-
-**Slow Camera Performance:**
-
-- Reduce camera quality in vision-camera settings
-- Ensure device is not overheating
-- Close other apps consuming resources
-
-**Memory Issues:**
-
-- Check for memory leaks with React DevTools
-- Ensure scanner component is properly unmounted
-- Use `onClose` callback to clean up state
-
-### Common Error Messages
-
-| Error                      | Solution                                        |
-| -------------------------- | ----------------------------------------------- |
-| "Camera permission denied" | Grant camera permission in device settings      |
-| "Invalid tracking ID"      | Ensure QR code is a valid Syngenta product code |
-| "Network request failed"   | Check internet connection and API URL           |
-| "API key missing"          | Provide valid API key in config                 |
-| "Module not found"         | Run `npm install` and rebuild                   |
 
 ---
 
-## 🤝 Contributing
+## Development
+
+### Monorepo Development
+
+This project uses Yarn Workspaces for monorepo management.
+
+#### Install Dependencies
+
+```bash
+yarn install
+```
+
+#### Build All Packages
+
+```bash
+yarn build
+```
+
+#### Run in Development Mode
+
+```bash
+yarn dev
+```
+
+#### Run Tests
+
+```bash
+# Run all tests
+yarn test
+
+# Run with coverage
+yarn test:coverage
+```
+
+#### Lint and Format
+
+```bash
+# Lint all packages
+yarn lint
+
+# Fix lint issues
+yarn lint:fix
+
+# Format code
+yarn format
+
+# Check formatting
+yarn format:check
+```
+
+#### Type Checking
+
+```bash
+yarn typecheck
+```
+
+### Adding a New Package
+
+1. Create directory in `packages/`
+2. Add `package.json` with workspace dependency references
+3. Add `tsconfig.json` extending root config
+4. Implement using ports from `core-sdk`
+5. Add build script using `tsup`
+
+### Publishing
+
+This project uses Changesets for version management.
+
+#### Create a Changeset
+
+```bash
+yarn changeset
+```
+
+#### Version Packages
+
+```bash
+yarn version-packages
+```
+
+#### Publish to NPM
+
+```bash
+yarn publish-packages
+```
+
+---
+
+## Contributing
 
 Contributions are welcome! Please follow these guidelines:
 
@@ -1177,8 +1396,8 @@ Contributions are welcome! Please follow these guidelines:
 1. **Fork the repository**
 
    ```bash
-   git clone https://github.com/syngenta-digital/npm-product-check.git
-   cd npm-product-check
+   git clone https://github.com/syngenta/product-check.git
+   cd product-check
    ```
 
 2. **Create a feature branch**
@@ -1195,8 +1414,9 @@ Contributions are welcome! Please follow these guidelines:
 4. **Run tests**
 
    ```bash
-   npm test
-   npm run lint
+   yarn test
+   yarn lint
+   yarn typecheck
    ```
 
 5. **Commit your changes**
@@ -1206,6 +1426,7 @@ Contributions are welcome! Please follow these guidelines:
    ```
 
 6. **Push and create PR**
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -1238,7 +1459,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ---
 
-## 📄 License
+## License
 
 MIT License
 
@@ -1264,44 +1485,22 @@ SOFTWARE.
 
 ---
 
-## 📞 Support
+## Support
 
 For questions, issues, or feature requests:
 
-- **GitHub Issues**: [syngenta-digital/npm-product-check/issues](https://github.com/syngenta-digital/npm-product-check/issues)
+- **GitHub Issues**: [syngenta/product-check/issues](https://github.com/syngenta/product-check/issues)
 - **Email**: support@syngenta.com
-- **Documentation**: [README.md](README.md)
+- **Documentation**: See [doc/](doc/) directory for detailed guides
 
 ---
 
-## 📝 Changelog
+## Additional Resources
 
-### Version 1.0.0 (Initial Release)
-
-**Features:**
-
-- ✅ React Native support with react-native-vision-camera
-- ✅ QR code scanning for Syngenta products
-- ✅ Multi-language support (EN, ES, PT, FR, DE, ZH)
-- ✅ Counterfeit detection (10+ scans warning)
-- ✅ Comprehensive error handling (13 error codes)
-- ✅ TypeScript support with full type definitions
-- ✅ Programmatic API for custom integrations
-- ✅ Localization with i18next
-
-**Documentation:**
-
-- Complete README with examples
-- API reference documentation
-- Setup guides for iOS and Android
-- Troubleshooting guide
-- Contributing guidelines
-
-**Testing:**
-
-- Unit tests for code decoder
-- Jest configuration
-- CI/CD with GitHub Actions
+- [API Contract](doc/API_CONTRACT.md) - Backend API specification
+- [Migration Guide](doc/MIGRATION_GUIDE.md) - Upgrading from previous versions
+- [Restructure Summary](doc/RESTRUCTURE_SUMMARY.md) - Architecture decisions
+- [Examples](examples/) - Usage examples
 
 ---
 
