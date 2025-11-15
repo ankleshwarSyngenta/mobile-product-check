@@ -1,7 +1,7 @@
 {
   "name": "@syngenta/product-check-react-native",
   "version": "0.0.1",
-  "description": "React Native product verification scanner (Syngenta) minimal SDK",
+  "description": "React Native product verification scanner for Syngenta",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -11,7 +11,8 @@
   "peerDependencies": {
     "react": ">=18.0.0",
     "react-native": ">=0.72.0",
-    "react-native-vision-camera": ">=3.9.0"
+    "react-native-vision-camera": ">=3.9.0",
+    "vision-camera-code-scanner": ">=0.2.0"
   },
   "dependencies": {
     "@syngenta/product-check-core": "0.0.1"
@@ -20,9 +21,15 @@
     "build": "tsup src/index.ts --dts --format cjs,esm --clean",
     "dev": "tsup src/index.ts --watch --dts --format cjs,esm",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "clean": "rm -rf dist"
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ]
 }

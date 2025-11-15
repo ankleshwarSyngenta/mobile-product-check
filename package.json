@@ -15,22 +15,20 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev --parallel",
-    "test": "turbo run test",
+    "build": "yarn workspaces foreach -Apt run build",
+    "dev": "yarn workspaces foreach -Ap run dev",
+    "test": "jest",
     "test:coverage": "jest --coverage",
-    "lint": "turbo run lint",
-    "lint:fix": "turbo run lint:fix",
+    "lint": "yarn workspaces foreach -Apt run lint",
+    "lint:fix": "yarn workspaces foreach -Apt run lint:fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
-    "typecheck": "turbo run typecheck",
+    "typecheck": "yarn workspaces foreach -Apt run typecheck",
+    "clean": "yarn workspaces foreach -Ap run clean && rm -rf node_modules",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "publish-packages": "changeset publish",
-    "prepublishOnly": "yarn lint && yarn typecheck && yarn test && yarn build",
-    "preversion": "yarn lint && yarn test",
-    "version": "yarn format && git add -A",
-    "postversion": "git push && git push --tags"
+    "prepublishOnly": "yarn lint && yarn typecheck && yarn test && yarn build"
   },
   "keywords": [
     "syngenta",
@@ -41,9 +39,7 @@
     "camera",
     "barcode",
     "mobile",
-    "react",
-    "angular",
-    "vue"
+    "react"
   ],
   "author": "Syngenta",
   "license": "MIT",
@@ -91,7 +87,7 @@
     "react-native-vision-camera": "^3.9.0",
     "ts-jest": "^29.1.1",
     "typescript": "^5.3.3",
-    "turbo": "^1.13.0",
-    "@changesets/cli": "^2.26.2"
+    "@changesets/cli": "^2.26.2",
+    "tsup": "^8.0.0"
   }
 }

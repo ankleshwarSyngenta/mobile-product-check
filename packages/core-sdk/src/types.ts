@@ -1,20 +1,23 @@
-export interface ProductDetails {
-  name: string;
-  manufacturer: string;
-  marketedBy: string;
-  manufacturedOn: string;
-  expiryDate: string;
-  batchNumber: string;
-  serialNumber?: string; // Scenario 1 extra field
-  rawMaterialBatchNumber?: string; // Scenario 1 extra field
-}
+// Re-export port types for convenience
+export type { ProductMetadata as ProductDetails } from './ports/BackendPort';
+export type { VerificationResponse } from './ports/BackendPort';
 
 export type VerificationStatus = 'success' | 'error' | 'warning';
 
 export interface VerificationResult {
   status: VerificationStatus;
   message: string;
-  productDetails?: ProductDetails;
+  productDetails?: {
+    name: string;
+    manufacturer: string;
+    marketedBy: string;
+    manufacturedOn: string;
+    expiryDate: string;
+    batchNumber: string;
+    serialNumber?: string;
+    rawMaterialBatchNumber?: string;
+    trackingId?: string;
+  };
   code?: string;
   errorCode?: number;
   scanCountLastYear?: number;
@@ -27,9 +30,16 @@ export interface CounterfeitStats {
   uniqueRetailersLastYear: number;
 }
 
-export interface DecodedCodeData {
-  trackingId?: string;
-  gtin?: string;
-  serialNumber?: string;
-  raw?: string;
+export interface ScannerConfig {
+  apiBaseUrl: string;
+  authToken?: string;
+  locale?: string;
+  counterfeitThreshold?: number;
+  retailerId?: string;
+  timeout?: number;
+  retryAttempts?: number;
+  enableAnalytics?: boolean;
 }
+
+// Re-export from utils to avoid duplication
+export type { DecodedCodeData } from './utils/codeDecoder';
