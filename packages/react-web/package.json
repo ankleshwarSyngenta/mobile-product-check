@@ -1,0 +1,26 @@
+{
+  "name": "@syngenta/product-check-react-web",
+  "version": "0.0.1",
+  "description": "React Web product verification scanner (Syngenta) minimal SDK",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "private": false,
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "dependencies": {
+    "@syngenta/product-check-core": "0.0.1"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --dts --format cjs,esm --clean",
+    "dev": "tsup src/index.ts --watch --dts --format cjs,esm",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

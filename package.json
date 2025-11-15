@@ -1,29 +1,35 @@
 {
-  "name": "@syngenta/mobile-product-check",
+  "name": "@syngenta/product-check",
   "version": "1.0.0",
   "description": "A comprehensive mobile product authentication module for scanning and verifying Syngenta products using 2D matrix codes",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "test": "turbo run test",
     "test:coverage": "jest --coverage",
-    "lint": "eslint src/**/*.{ts,tsx}",
-    "lint:fix": "eslint src/**/*.{ts,tsx} --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx,json,md}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,json,md}\"",
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run lint && npm run typecheck && npm run test && npm run build",
-    "preversion": "npm run lint && npm run test",
-    "version": "npm run format && git add -A src",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
+    "typecheck": "turbo run typecheck",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "publish-packages": "changeset publish",
+    "prepublishOnly": "yarn lint && yarn typecheck && yarn test && yarn build",
+    "preversion": "yarn lint && yarn test",
+    "version": "yarn format && git add -A",
     "postversion": "git push && git push --tags"
   },
   "keywords": [
@@ -43,12 +49,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/syngenta/mobile-product-check.git"
+    "url": "https://github.com/syngenta/product-check.git"
   },
   "bugs": {
-    "url": "https://github.com/syngenta/mobile-product-check/issues"
+    "url": "https://github.com/syngenta/product-check/issues"
   },
-  "homepage": "https://github.com/syngenta/mobile-product-check#readme",
+  "homepage": "https://github.com/syngenta/product-check#readme",
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-native": ">=0.64.0",
@@ -84,6 +90,8 @@
     "react-native": "^0.74.0",
     "react-native-vision-camera": "^3.9.0",
     "ts-jest": "^29.1.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "turbo": "^1.13.0",
+    "@changesets/cli": "^2.26.2"
   }
 }

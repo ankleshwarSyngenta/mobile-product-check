@@ -1,11 +1,37 @@
-# @syngenta/mobile-product-check
+# @syngenta/product-check
 
-[![npm version](https://badge.fury.io/js/%40syngenta%2Fmobile-product-check.svg)](https://www.npmjs.com/package/@syngenta/mobile-product-check)
+[![npm version](https://badge.fury.io/js/%40syngenta%2Fproduct-check.svg)](https://www.npmjs.com/package/@syngenta/product-check)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A comprehensive React Native module for scanning and verifying Syngenta products using QR codes with camera integration.
+A comprehensive product authentication module for scanning and verifying Syngenta products using 2D matrix codes.
 
-## 📋 Table of Contents
+## 📦 Installation
+
+This is a monorepo containing multiple packages. Install only the package you need:
+
+### For React Native Apps
+
+```bash
+npm install @syngenta/product-check-react-native react-native-vision-camera
+# or
+yarn add @syngenta/product-check-react-native react-native-vision-camera
+```
+
+### For React Web Apps
+
+```bash
+npm install @syngenta/product-check-react-web
+# or
+yarn add @syngenta/product-check-react-web
+```
+
+### Core SDK (for custom integrations)
+
+```bash
+npm install @syngenta/product-check-core
+# or
+yarn add @syngenta/product-check-core
+```
 
 - [Features](#features)
 - [Architecture](#architecture)
@@ -36,7 +62,7 @@ A comprehensive React Native module for scanning and verifying Syngenta products
 
 ---
 
-## ✨ Features
+## 📋 Table of Contents
 
 ✅ **Camera Integration** - Uses react-native-vision-camera for efficient QR code scanning  
 ✅ **Product Verification** - Securely communicates with Syngenta's backend services  
@@ -96,9 +122,9 @@ Display Result (Success/Error/Warning)
 **Step 1: Install the package**
 
 ```bash
-npm install @syngenta/mobile-product-check react-native-vision-camera
+npm install @syngenta/product-check-react-native react-native-vision-camera
 # or
-yarn add @syngenta/mobile-product-check react-native-vision-camera
+yarn add @syngenta/product-check-react-native react-native-vision-camera
 ```
 
 **Step 2: Install pods (iOS only)**
@@ -1177,8 +1203,8 @@ Contributions are welcome! Please follow these guidelines:
 1. **Fork the repository**
 
    ```bash
-   git clone https://github.com/syngenta-digital/npm-product-check.git
-   cd npm-product-check
+   git clone https://github.com/syngenta/product-check.git
+   cd product-check
    ```
 
 2. **Create a feature branch**
@@ -1268,7 +1294,7 @@ SOFTWARE.
 
 For questions, issues, or feature requests:
 
-- **GitHub Issues**: [syngenta-digital/npm-product-check/issues](https://github.com/syngenta-digital/npm-product-check/issues)
+- **GitHub Issues**: [syngenta/product-check/issues](https://github.com/syngenta/product-check/issues)
 - **Email**: support@syngenta.com
 - **Documentation**: [README.md](README.md)
 
