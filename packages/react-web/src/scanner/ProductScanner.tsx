@@ -1,131 +1,239 @@
-import React, { useEffect, useState } from 'react';
-import {
-  BackendClient,
-  useProductVerification,
-  VerificationThemeProvider,
-  useVerificationTheme,
-  VerificationResult,
-} from '@syngenta/product-verification-core-sdk';
+import React, { useState, useCallback } from 'react';
+import { Scanner } from '@yudiel/react-qr-scanner';
+import { VerificationResult } from '../types';
+
+// TODO: Import from core-sdk once proper package linking is set up
+// For now, we'll need to implement basic verification inline
 
 interface ProductScannerProps {
   onResult?: (result: VerificationResult) => void;
+  onClose?: () => void;
   className?: string;
   apiBaseUrl: string;
   authToken?: string;
   enableCounterfeitCheck?: boolean;
-  themeOverride?: Parameters<typeof VerificationThemeProvider>[0]['theme'];
 }
 
 export const ProductScanner: React.FC<ProductScannerProps> = ({
   onResult,
+  onClose,
   className,
   apiBaseUrl,
   authToken,
   enableCounterfeitCheck = true,
-  themeOverride,
 }) => {
   const [status, setStatus] = useState<'idle' | 'scanning' | 'verified' | 'error' | 'warning'>(
-    'idle'
+    'scanning'
   );
   const [result, setResult] = useState<VerificationResult | null>(null);
-  const client = new BackendClient({ baseUrl: apiBaseUrl, authToken });
-  const { verifyCode } = useProductVerification({
-    client,
-    counterfeitThreshold: enableCounterfeitCheck ? 10 : undefined,
-  });
-  const theme = useVerificationTheme();
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  useEffect(() => {
-    // Minimal approach: simulate scan; real implementation will use getUserMedia + BarcodeDetector or fallback.
-    const t = setTimeout(async () => {
-      if (status !== 'idle') return;
+  const verifyCode = async (code: string): Promise<VerificationResult> => {
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
+        body: JSON.stringify({ code, codeType: 'QR' }),
+      });
+
+      if (!response.ok) {
+        return {
+          status: 'error',
+          message: 'Verification service unavailable',
+        };
+      }
+
+      const data = await response.json();
+
+      if (data.status === 'success' && data.product) {
+        const counterfeitSuspected =
+          enableCounterfeitCheck && (data.uniqueRetailersLastYear ?? 0) > 10;
+
+        return {
+          status: counterfeitSuspected ? 'warning' : 'success',
+          message: counterfeitSuspected
+            ? 'Product verified but has been scanned multiple times'
+            : 'Product verified successfully',
+          productDetails: {
+            name: data.product.name ?? 'N/A',
+            manufacturer: data.product.manufacturer ?? 'N/A',
+            marketedBy: data.product.marketedBy ?? 'N/A',
+            manufacturedOn: data.product.manufacturedOn ?? 'N/A',
+            expiryDate: data.product.expiryDate ?? 'N/A',
+            batchNumber: data.product.batchNumber ?? 'N/A',
+          },
+          code,
+        };
+      }
+
+      return {
+        status: 'error',
+        message: data.message || 'Verification failed',
+        errorCode: data.errorCode,
+        code,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: error instanceof Error ? error.message : 'Network error',
+        code,
+      };
+    }
+  };
+
+  const handleScan = useCallback(
+    async (detectedCodes: any[]) => {
+      if (isProcessing || !detectedCodes || detectedCodes.length === 0) return;
+
+      const code = detectedCodes[0]?.rawValue;
+      if (!code) return;
+
+      setIsProcessing(true);
       setStatus('scanning');
-      const mockCode = 'SYN-QR-DEMO-CODE-123';
+
       try {
-        const result = await verifyCode(mockCode);
+        const verificationResult = await verifyCode(code);
         setStatus(
-          result.status === 'success'
+          verificationResult.status === 'success'
             ? 'verified'
-            : result.status === 'warning'
+            : verificationResult.status === 'warning'
               ? 'warning'
               : 'error'
         );
-        setResult(result);
-        onResult?.(result);
+        setResult(verificationResult);
+        onResult?.(verificationResult);
       } catch (e) {
         setStatus('error');
-        const fallback = { status: 'error', message: (e as Error).message } as VerificationResult;
+        const fallback: VerificationResult = {
+          status: 'error',
+          message: (e as Error).message,
+          code,
+        };
         setResult(fallback);
         onResult?.(fallback);
+      } finally {
+        setIsProcessing(false);
       }
-    }, 1000);
-    return () => clearTimeout(t);
-  }, [status, verifyCode, onResult]);
+    },
+    [isProcessing, apiBaseUrl, authToken, enableCounterfeitCheck, onResult]
+  );
 
   const resetScan = () => {
-    setStatus('idle');
+    setStatus('scanning');
     setResult(null);
+    setIsProcessing(false);
   };
 
   const renderContent = () => {
-    if (status === 'idle')
-      return <span style={{ color: theme.colors.text }}>Waiting for camera… (demo)</span>;
-    if (status === 'scanning') return <span style={{ color: theme.colors.accent }}>Scanning…</span>;
+    if (status === 'scanning' && !result) {
+      return (
+        <div style={{ position: 'relative' }}>
+          <Scanner
+            onScan={handleScan}
+            onError={(error) => console.error('Scanner error:', error)}
+            styles={{
+              container: { width: '100%', maxWidth: '500px' },
+            }}
+          />
+          <div
+            style={{
+              textAlign: 'center',
+              marginTop: 12,
+              color: '#007bff',
+            }}
+          >
+            Point camera at QR code to scan
+          </div>
+        </div>
+      );
+    }
     if (status === 'verified' && result?.productDetails)
       return (
-        <div style={{ color: theme.colors.success }}>
-          <div>{theme.icons.success} Product Verified</div>
+        <div style={{ color: '#28a745' }}>
+          <div>✓ Product Verified</div>
           <ul style={{ paddingLeft: 16, marginTop: 8 }}>
             <li>Name: {result.productDetails.name}</li>
-            <li>Serial Number: {result.productDetails.serialNumber}</li>
+            <li>Manufacturer: {result.productDetails.manufacturer}</li>
+            <li>Marketed By: {result.productDetails.marketedBy}</li>
             <li>Produced: {result.productDetails.manufacturedOn}</li>
             <li>Expiry: {result.productDetails.expiryDate}</li>
             <li>Batch: {result.productDetails.batchNumber}</li>
-            <li>Raw Material Batch: {result.productDetails.rawMaterialBatchNumber}</li>
           </ul>
         </div>
       );
     if (status === 'warning')
       return (
-        <div style={{ color: theme.colors.warning }}>
-          <div>
-            {theme.icons.warning} {result?.message || 'Potential counterfeit detected.'}
-          </div>
+        <div style={{ color: '#ffc107' }}>
+          <div>⚠ {result?.message || 'Potential counterfeit detected.'}</div>
+          {result?.productDetails && (
+            <ul style={{ paddingLeft: 16, marginTop: 8 }}>
+              <li>Name: {result.productDetails.name}</li>
+              <li>Manufacturer: {result.productDetails.manufacturer}</li>
+            </ul>
+          )}
         </div>
       );
     if (status === 'error')
       return (
-        <div style={{ color: theme.colors.error }}>
-          <div>
-            {theme.icons.error} {result?.message || 'Verification Failed'}
-          </div>
+        <div style={{ color: '#dc3545' }}>
+          <div>✗ {result?.message || 'Verification Failed'}</div>
+          {result?.errorCode !== undefined && (
+            <div style={{ fontSize: '0.9em', marginTop: 4 }}>Error Code: {result.errorCode}</div>
+          )}
         </div>
       );
     return null;
   };
+
   return (
-    <VerificationThemeProvider theme={themeOverride}>
-      <div className={className} style={{ padding: 16, background: theme.colors.background }}>
-        {renderContent()}
-        <div style={{ marginTop: 12 }}>
+    <div
+      className={className}
+      style={{
+        padding: 16,
+        background: '#ffffff',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
+      {renderContent()}
+      <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+        {result && (
           <button
             type="button"
             onClick={resetScan}
             style={{
-              padding: '8px 12px',
-              background: theme.colors.accent,
+              padding: '8px 16px',
+              background: '#007bff',
               color: '#FFF',
               border: 'none',
               borderRadius: 4,
               cursor: 'pointer',
-              opacity: status === 'scanning' ? 0.6 : 1,
             }}
-            disabled={status === 'scanning'}
           >
             Scan Another Product
           </button>
-        </div>
+        )}
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              padding: '8px 16px',
+              background: '#6c757d',
+              color: '#FFF',
+              border: 'none',
+              borderRadius: 4,
+              cursor: 'pointer',
+            }}
+          >
+            Close
+          </button>
+        )}
       </div>
-    </VerificationThemeProvider>
+    </div>
   );
 };

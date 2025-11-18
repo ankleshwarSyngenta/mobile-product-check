@@ -8,7 +8,7 @@ export interface ProductDetails {
 }
 
 export interface VerificationResult {
-  status: 'success' | 'error';
+  status: 'success' | 'error' | 'warning';
   message: string;
   productDetails?: ProductDetails;
   code?: string;

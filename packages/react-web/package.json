@@ -13,7 +13,8 @@
     "react-dom": ">=18.0.0"
   },
   "dependencies": {
-    "@syngenta/product-check-core": "0.0.1"
+    "@syngenta/product-check-core": "0.0.1",
+    "@yudiel/react-qr-scanner": "^2.4.1"
   },
   "scripts": {
     "build": "tsup src/index.ts --dts --format cjs,esm --clean",
