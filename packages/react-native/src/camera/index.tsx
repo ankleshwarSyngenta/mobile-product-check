@@ -1,28 +1,63 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Pressable, View } from "react-native";
-import { useStyle } from "@hooks";
-import { useAppState } from "@react-native-community/hooks";
-import { Text } from "@shared-components";
-import { themes } from "@theme";
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  AppState,
+  AppStateStatus,
+  I18nManager,
+  Pressable,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import {
   Camera,
   CameraDevice,
   Code,
   useCameraDevices,
   useCodeScanner,
-} from "react-native-vision-camera";
-import { SvgImages } from "@images";
-import style from "./style";
-import { SCAN_TYPE } from "@shared-constants";
-import { TEST_IDS } from "@packages/tests/testIDConstants";
-import find from "lodash/find";
+} from 'react-native-vision-camera';
+import createStyles, { CAMERA_COLORS } from './style';
+
+export enum ScanType {
+  SCAN_CODE = 'SCAN_CODE',
+  ENTER_CODE = 'ENTER_CODE',
+}
+
+export const TEST_IDS = {
+  SCAN_TAB_SCAN: 'scan-tab-scan',
+  SCAN_TAB_INPUT: 'scan-tab-input',
+} as const;
+
+const useAppState = () => {
+  const [state, setState] = useState<AppStateStatus>(AppState.currentState);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', setState);
+    return () => subscription.remove();
+  }, []);
+
+  return state;
+};
+
+const ICON_SIZE = 24;
+
+interface IconButtonProps {
+  label: string;
+  onPress?: () => void;
+  testID?: string;
+}
+
+const IconButton: React.FC<IconButtonProps> = ({ label, onPress, testID }) => (
+  <Pressable accessibilityRole="button" onPress={onPress} testID={testID}>
+    <Text style={{ fontSize: ICON_SIZE, color: CAMERA_COLORS.white }}>{label}</Text>
+  </Pressable>
+);
 
 interface ICameraUIProps {
   headerLabel?: string;
   scanCodeLabel: string;
   enterCodeLabel: string;
   handleOnCloseClick?: () => void;
-  handleOnBottomViewClick?: (type: SCAN_TYPE) => void;
+  handleOnBottomViewClick?: (type: ScanType) => void;
   handleOnScanResult?: (result: Code[]) => void;
   isCameraReady?: boolean;
   isFocused?: boolean;
@@ -31,9 +66,9 @@ interface ICameraUIProps {
 }
 
 export const CameraUI: React.FC<ICameraUIProps> = ({
-  headerLabel,
-  scanCodeLabel,
-  enterCodeLabel,
+  headerLabel = 'Product Check',
+  scanCodeLabel = 'Scan code',
+  enterCodeLabel = 'Enter code',
   isCameraReady = false,
   isFocused = false,
   isInputModalClosed = false,
@@ -42,28 +77,30 @@ export const CameraUI: React.FC<ICameraUIProps> = ({
   handleOnScanResult,
   testID,
 }) => {
-  const styles = useStyle(style);
+  const { width, height } = useWindowDimensions();
+  const isRTL = I18nManager.isRTL;
+  const styles = useMemo(() => createStyles({ width, height, isRTL }), [width, height, isRTL]);
   const devices: CameraDevice[] = useCameraDevices();
   const device: CameraDevice | undefined = useMemo(
-    () => find(devices, (item: CameraDevice) => item.position === "back"),
-    [devices],
+    () => devices.find((item: CameraDevice) => item.position === 'back'),
+    [devices]
   );
   const appState = useAppState();
   const codeScanner = useCodeScanner({
     codeTypes: [
-      "code-128",
-      "code-39",
-      "code-93",
-      "codabar",
-      "ean-13",
-      "ean-8",
-      "itf",
-      "upc-e",
-      "upc-a",
-      "qr",
-      "pdf-417",
-      "aztec",
-      "data-matrix",
+      'code-128',
+      'code-39',
+      'code-93',
+      'codabar',
+      'ean-13',
+      'ean-8',
+      'itf',
+      'upc-e',
+      'upc-a',
+      'qr',
+      'pdf-417',
+      'aztec',
+      'data-matrix',
     ],
     onCodeScanned: (codes) => {
       if (handleOnScanResult) {
@@ -71,23 +108,23 @@ export const CameraUI: React.FC<ICameraUIProps> = ({
       }
     },
   });
-  const [activeBtn, setActiveBtn] = useState<SCAN_TYPE>(SCAN_TYPE.SCAN_CODE);
+  const [activeBtn, setActiveBtn] = useState<ScanType>(ScanType.SCAN_CODE);
   const [isTorchEnabled, setIsTorchEnabled] = useState<boolean>(false);
 
   useEffect(() => {
     if (isFocused) {
-      setActiveBtn(SCAN_TYPE.SCAN_CODE);
+      setActiveBtn(ScanType.SCAN_CODE);
       setIsTorchEnabled(false);
     }
   }, [isFocused]);
 
   useEffect(() => {
     if (isInputModalClosed) {
-      setActiveBtn(SCAN_TYPE.SCAN_CODE);
+      setActiveBtn(ScanType.SCAN_CODE);
     }
   }, [isInputModalClosed]);
 
-  const handleToggleClick = (type: SCAN_TYPE) => {
+  const handleToggleClick = (type: ScanType) => {
     if (handleOnBottomViewClick) {
       handleOnBottomViewClick(type);
     }
@@ -104,34 +141,24 @@ export const CameraUI: React.FC<ICameraUIProps> = ({
         <Camera
           style={styles.camera}
           device={device}
-          isActive={appState === "active"}
+          isActive={appState === 'active'}
           focusable={true}
-          exposure={0}
           codeScanner={codeScanner}
-          torch={device && device?.hasTorch && isTorchEnabled ? "on" : "off"}
-          photoQualityBalance={"speed"}
+          torch={device && device?.hasTorch && isTorchEnabled ? 'on' : 'off'}
         />
       )}
       <View style={styles.absContainer}>
         <View style={styles.topContainer}>
-          <Pressable testID={"closeButton"} onPress={handleOnCloseClick}>
-            <SvgImages.Close
-              width={themes.size(24)}
-              fill={themes.colors.white}
-              height={themes.size(24)}
-            />
-          </Pressable>
-          <Text numberOfLines={1} font={"bold"} style={styles.text}>
+          <IconButton label="×" onPress={handleOnCloseClick} testID="closeButton" />
+          <Text numberOfLines={1} style={styles.text}>
             {headerLabel}
           </Text>
           {device?.hasTorch && (
-            <Pressable testID={"flashlightButton"} onPress={handleFlashClick}>
-              <SvgImages.Flashlight
-                color={themes.colors.white}
-                width={themes.size(24)}
-                height={themes.size(24)}
-              />
-            </Pressable>
+            <IconButton
+              label={isTorchEnabled ? '🔦' : '💡'}
+              onPress={handleFlashClick}
+              testID="flashlightButton"
+            />
           )}
         </View>
         <View style={styles.centerContainer}>
@@ -148,40 +175,24 @@ export const CameraUI: React.FC<ICameraUIProps> = ({
           <View style={styles.bottomBtnContainer}>
             <Pressable
               testID={TEST_IDS.SCAN_TAB_SCAN}
-              onPress={() => handleToggleClick(SCAN_TYPE.SCAN_CODE)}
-              style={
-                activeBtn === SCAN_TYPE.SCAN_CODE
-                  ? styles.activeButton
-                  : styles.inActiveButton
-              }
+              onPress={() => handleToggleClick(ScanType.SCAN_CODE)}
+              style={activeBtn === ScanType.SCAN_CODE ? styles.activeButton : styles.inActiveButton}
             >
               <Text
-                font={"semi"}
-                style={
-                  activeBtn === SCAN_TYPE.SCAN_CODE
-                    ? styles.activeText
-                    : styles.inActiveText
-                }
+                style={activeBtn === ScanType.SCAN_CODE ? styles.activeText : styles.inActiveText}
               >
                 {scanCodeLabel}
               </Text>
             </Pressable>
             <Pressable
               testID={TEST_IDS.SCAN_TAB_INPUT}
-              onPress={() => handleToggleClick(SCAN_TYPE.ENTER_CODE)}
+              onPress={() => handleToggleClick(ScanType.ENTER_CODE)}
               style={
-                activeBtn === SCAN_TYPE.ENTER_CODE
-                  ? styles.activeButton
-                  : styles.inActiveButton
+                activeBtn === ScanType.ENTER_CODE ? styles.activeButton : styles.inActiveButton
               }
             >
               <Text
-                font={"semi"}
-                style={
-                  activeBtn === SCAN_TYPE.ENTER_CODE
-                    ? styles.activeText
-                    : styles.inActiveText
-                }
+                style={activeBtn === ScanType.ENTER_CODE ? styles.activeText : styles.inActiveText}
               >
                 {enterCodeLabel}
               </Text>

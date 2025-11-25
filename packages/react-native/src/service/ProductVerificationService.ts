@@ -10,7 +10,7 @@ export interface ProductVerificationService {
 }
 
 export function createProductVerificationService(
-  config: ProductVerificationConfig = {}
+  _config: ProductVerificationConfig = {}
 ): ProductVerificationService {
   return {
     async scan(code: string) {

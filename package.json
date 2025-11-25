@@ -1,13 +1,11 @@
 {
-  "name": "@syngenta/product-check",
+  "name": "@syngenta/product-check-monorepo",
   "version": "1.0.0",
   "description": "A comprehensive mobile product authentication module for scanning and verifying Syngenta products using 2D matrix codes",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples/*"
   ],
   "files": [
     "dist",

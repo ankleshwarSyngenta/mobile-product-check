@@ -1,7 +1,7 @@
 {
-  "name": "@syngenta/product-check-react-native",
-  "version": "0.0.1",
-  "description": "React Native product verification scanner for Syngenta",
+  "name": "@syngenta/product-check",
+  "version": "1.0.0",
+  "description": "React Native product verification scanner for Syngenta with built-in camera, API client, and verification flows",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -13,9 +13,6 @@
     "react-native": ">=0.72.0",
     "react-native-vision-camera": ">=3.9.0",
     "vision-camera-code-scanner": ">=0.2.0"
-  },
-  "dependencies": {
-    "@syngenta/product-check-core": "0.0.1"
   },
   "scripts": {
     "build": "tsup src/index.ts --dts --format cjs,esm --clean",

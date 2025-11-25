@@ -1,12 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import {
-  BackendClient,
-  useProductVerification,
-  VerificationThemeProvider,
-  useVerificationTheme,
-  VerificationResult,
-} from '@syngenta/product-verification-core-sdk';
+import { BackendClient } from '../api/BackendClient';
+import { useProductVerification } from '../hooks/useProductVerification';
+import { VerificationThemeProvider, useVerificationTheme } from '../theme/ThemeProvider';
+import { VerificationResult } from '../types';
 
 interface ProductScannerProps {
   onResult?: (result: VerificationResult) => void;

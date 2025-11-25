@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { CameraUI } from '../camera';
+import { CameraUI, ScanType } from '../camera';
 import { ProductVerifiedScreen } from './ProductVerifiedScreen';
 import { NonSyngentaProductScreen } from './NonSyngentaProductScreen';
 import { VerificationRequiredScreen } from './VerificationRequiredScreen';
@@ -90,7 +90,7 @@ export const ProductScanFlow: React.FC<ProductScanFlowProps> = ({
     }
   }, [onClose]);
 
-  const handleBottomViewClick = useCallback((type: string) => {
+  const handleBottomViewClick = useCallback((type: ScanType) => {
     // Handle scan type change (scan code vs enter code manually)
     console.log('Scan type changed:', type);
   }, []);
